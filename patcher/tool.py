@@ -8,6 +8,7 @@ Description : call tool to repack the game.
 # == Imports ==================================================================
 
 from logging import Logger
+from pathlib import Path
 import subprocess
 
 # -------------------- Import Lib User -------------------
@@ -30,15 +31,19 @@ def repack() -> None:
 
 
 def _call_repack() -> None:
-
-    command: list[str] = [
-        "tool.exe",
-        "file.txt"
-    ]
-
-    subprocess.run(
-        command,
-        shell=True,
-        check=False,
-        cwd=config.TOOL_FOLDER
-        )
+    xdelta.apply_xdelta_patch(
+        target_file=str(Path(config.GAME_FOLDER) / "Launcher.exe"),
+        patch_file=str(config.PATCH_FOLDER / "Launcher.exe.xdelta"),
+    )
+    xdelta.apply_xdelta_patch(
+        target_file=str(Path(config.GAME_FOLDER) / "ze1_data.bin"),
+        patch_file=str(config.PATCH_FOLDER / "ze1_data.bin.xdelta"),
+    )
+    xdelta.apply_xdelta_patch(
+        target_file=str(Path(config.GAME_FOLDER) / "ze1.exe"),
+        patch_file=str(config.PATCH_FOLDER / "ze1.exe.xdelta"),
+    )
+    xdelta.apply_xdelta_patch(
+        target_file=str(Path(config.GAME_FOLDER) / "ze2_data_en_us.bin"),
+        patch_file=str(config.PATCH_FOLDER / "ze2_data_en_us.bin.xdelta"),
+    )

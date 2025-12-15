@@ -11,7 +11,7 @@ Créez un environnement virtuel
 
 Installer les dépendances
 
-    pip install -r requirements.text
+    pip install -r requirements.txt
 
 Mettez le logo du jeu dans resources au nom `game-logo.png` et lancez la ligne suivante pour compiler les ressources.
 
