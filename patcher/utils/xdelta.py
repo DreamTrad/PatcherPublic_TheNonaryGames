@@ -12,6 +12,7 @@ Description : functions to access to use xdelta
 from logging import Logger
 import os
 import subprocess
+import sys
 
 # -------------------- Import Lib User -------------------
 
@@ -22,7 +23,12 @@ from patcher.config import TOOL_FOLDER
 # == Global Variables =========================================================
 
 _logger: Logger = get_logger(__name__)
-XDELTA_EXE = "xdelta3.exe"
+XDELTA_EXE = "xdelta3"
+CREATION_FLAG = 0
+if sys.platform == "win32":
+    XDELTA_EXE = "xdelta3.exe"
+    CREATION_FLAG = subprocess.CREATE_NO_WINDOW
+
 XDELTA_PATH = os.path.join(TOOL_FOLDER, XDELTA_EXE)
 
 
@@ -42,6 +48,7 @@ def apply_xdelta_patch(
     Returns:
         bool: True on success, False otherwise
     """
+    global XDELTA_PATH
 
     if not os.path.isfile(XDELTA_PATH):
         _logger.error("xdelta3 executable not found at %s", XDELTA_PATH)
@@ -58,6 +65,9 @@ def apply_xdelta_patch(
     base, ext = os.path.splitext(target_file)
     temp_output = f"{base}.patched{ext}"
 
+    if not sys.platform == "win32":
+        XDELTA_PATH = f"./{XDELTA_PATH}"
+
     command = [
         XDELTA_PATH,
         "-d",          # decode
@@ -72,7 +82,7 @@ def apply_xdelta_patch(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        creationflags=subprocess.CREATE_NO_WINDOW,
+        creationflags=CREATION_FLAG,
         check=False,
     )
 

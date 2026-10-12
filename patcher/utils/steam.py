@@ -10,9 +10,15 @@ Description : functions to access steam game folders
 # == Imports ==================================================================
 
 from logging import Logger
+import os
 from pathlib import Path
 import shutil
-import winreg
+import sys
+
+try:
+    import winreg
+except ImportError:
+    winreg = None
 
 # -------------------- Import Lib User -------------------
 
@@ -27,20 +33,39 @@ _logger: Logger = get_logger(__name__)
 # == Functions ================================================================
 
 def find_steam_folder_path() -> str | None:
-    """Find where Steam is installed on Windows.
+    """Find where Steam is installed.
 
     Returns:
         str: path of steam, or None if error
     """
-    KEY_PATH_STEAM = r"SOFTWARE\\Valve\\Steam"
-    KEY_NAME = "SteamPath"
-    try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, KEY_PATH_STEAM, 0, winreg.KEY_READ) as key:
-            return winreg.QueryValueEx(key, KEY_NAME)[0]
-    except FileNotFoundError:
-        _logger.error("Steam registry key not found.")
-    except Exception as e:
-        _logger.exception("Error reading Steam path from registry: %s", e)
+    # Windows
+    if sys.platform == "win32" and winreg is not None:
+        KEY_PATH_STEAM = r"SOFTWARE\\Valve\\Steam"
+        KEY_NAME = "SteamPath"
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, KEY_PATH_STEAM, 0, winreg.KEY_READ) as key:
+                return winreg.QueryValueEx(key, KEY_NAME)[0]
+        except FileNotFoundError:
+            _logger.error("Steam registry key not found.")
+        except Exception as e:
+            _logger.exception("Error reading Steam path from registry: %s", e)
+        return None
+    
+    # Linux
+    home = Path.home()
+    data_home = Path(os.environ.get("XDG_DATA_HOME", home / ".local/share"))
+    candidates = [
+        Path(os.environ["STEAM_DIR"]) if os.environ.get("STEAM_DIR") else None,
+        home / ".steam/steam",
+        home / ".steam/root",
+        data_home / "Steam",
+        home / ".var/app/com.valvesoftware.Steam/.local/share/Steam",
+    ]
+    for candidate in candidates:
+        if candidate is not None and (candidate / "steamapps").is_dir():
+            return str(candidate)
+
+    _logger.error("Steam installation path not found.")
     return None
 
 
@@ -70,7 +95,7 @@ def find_steam_library_folders_path() -> list[str] | None:
         _logger.error("libraryfolders.vdf not found at %s", vdf_path)
         return None
 
-    game_folders: list[str] = []
+    game_folders: list[str] = [steam_folder]
     try:
         with vdf_path.open(encoding="utf-8") as file:
             for line in file:

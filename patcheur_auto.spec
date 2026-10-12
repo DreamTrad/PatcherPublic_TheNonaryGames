@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath("."))
 
 from patcher import config
 
-exe_name = getattr(config, "EXE_NAME", "Patcheur Auto")
+exe_basename = getattr(config, "EXE_BASENAME", "Patcheur Auto")
 
 dist_dir = "dist"
 
@@ -26,7 +26,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['patcher\\main.py'],
+    ['patcher/main.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -49,7 +49,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name=exe_name,
+    name=exe_basename,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -6,7 +6,7 @@ import pathlib
 # == INFORMATIONS GÉNÉRALES ===================================================
 
 # Nom de l’exe généré
-EXE_NAME: str = "DreamTrad_patcheur_fr_ZeroEscape_NonaryGames.exe"
+EXE_BASENAME: str = "DreamTrad_patcheur_fr_ZeroEscape_NonaryGames"
 # Nom de la fenêtre du logiciel
 NAME_WINDOW: str = "DreamTrad : Patcheur de Zero Escape - The Nonary Games"
 
