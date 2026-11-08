@@ -10,27 +10,28 @@ Description : Main window of the application.
 # -------------------- Import Lib Tier -------------------
 from PySide6.QtCore import QDir
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QMainWindow, QFileDialog
+from PySide6.QtWidgets import QFileDialog, QMainWindow
 
 # -------------------- Import Lib User -------------------
-
 from patcher import config
-
-from patcher.ui.mainwindow.mainwindow_view import MainWindowView
 from patcher.ui.mainwindow.mainwindow_model import MainWindowModel
-
+from patcher.ui.mainwindow.mainwindow_view import MainWindowView
 
 # == Classes ==================================================================
 
+
 class MainWindowController(QMainWindow):
     def __init__(self) -> None:
-        super(MainWindowController, self).__init__()
+        super().__init__()
         self.ui = MainWindowView()
         self.model = MainWindowModel()
         self.ui.setupUi(self)
 
         self.set_up_connect()
         self.ui.line_edit.setText(self.model.get_path_game())
+        if config.OTHERS_CHECKBOXES:
+            for checkbox_id, label in config.OTHERS_CHECKBOXES.items():
+                self.ui.checkboxes[checkbox_id].setChecked(label[1])
 
     def set_up_connect(self) -> None:
         # button
@@ -46,18 +47,24 @@ class MainWindowController(QMainWindow):
 
     def button_browse_clicked(self) -> None:
         folder: str = QFileDialog.getExistingDirectory(
-            self, "Sélectionnez le dossier du jeu", QDir.currentPath(), QFileDialog.ShowDirsOnly  # type: ignore
-            )
+            self,
+            "Sélectionnez le dossier du jeu",
+            QDir.currentPath(),
+            QFileDialog.Option.ShowDirsOnly,
+        )
         if folder:
             self.ui.line_edit.setText(folder)
 
     def button_proccess_clicked(self) -> None:
         self.set_enable_state(False)
         config.GAME_FOLDER = self.ui.line_edit.text()
+        config.CHECKBOX_VALUES = self.get_checkbox_states()
         self.model.run_process()
 
     def line_edit_text_changed(self) -> None:
-        self.ui.button_process.setEnabled(self.model.is_path_game_valid(self.ui.line_edit.text()))
+        self.ui.button_process.setEnabled(
+            self.model.is_path_game_valid(self.ui.line_edit.text())
+        )
 
     def run_process_finished(self) -> None:
         self.set_enable_state(True)
@@ -83,3 +90,11 @@ class MainWindowController(QMainWindow):
         self.ui.line_edit.setEnabled(is_enabled)
         self.ui.button_browse.setEnabled(is_enabled)
         self.ui.button_process.setEnabled(is_enabled)
+
+    def get_checkbox_states(self) -> dict[str, bool]:
+        """Return the state of all checkboxes outside of image and video,
+        keyed by their ID."""
+        return {
+            checkbox_id: cb.isChecked()
+            for checkbox_id, cb in self.ui.checkboxes.items()
+        }

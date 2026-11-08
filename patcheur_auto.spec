@@ -1,32 +1,40 @@
-# -*- mode: python ; coding: utf-8 -*-
-
-
 import os
+import platform
 import shutil
 import sys
 
 sys.path.append(os.path.abspath("."))
 
-from patcher import config
-
-exe_basename = getattr(config, "EXE_BASENAME", "Patcheur Auto")
-
 dist_dir = "dist"
+
 
 def copy_folder(src: str, dst: str) -> None:
     if os.path.exists(dst):
         shutil.rmtree(dst)
     shutil.copytree(src, dst)
 
-if os.path.exists("dist"):
-    copy_folder("tool", os.path.join(dist_dir, "tool"))
-    copy_folder("patch", os.path.join(dist_dir, "patch"))
+
+def remove_gitkeep(folder: str) -> None:
+    gitkeep_path = os.path.join(folder, ".gitkeep")
+    if os.path.isfile(gitkeep_path):
+        os.remove(gitkeep_path)
+
+
+if os.path.exists(dist_dir):
+    tool_dst = os.path.join(dist_dir, "tool")
+    patch_dst = os.path.join(dist_dir, "patch")
+
+    copy_folder("tool", tool_dst)
+    copy_folder("patch", patch_dst)
+
+    remove_gitkeep(tool_dst)
+    remove_gitkeep(patch_dst)
 
 block_cipher = None
 
 
 a = Analysis(
-    ['patcher/main.py'],
+    ["patcher/main.py"],
     pathex=[],
     binaries=[],
     datas=[],
@@ -49,7 +57,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name=exe_basename,
+    name=f"DT_patcheur-{platform.system()}",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -62,5 +70,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='resources/dreamtrad-logo.png',
+    icon="resources/dreamtrad-logo.png",
 )

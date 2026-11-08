@@ -2,6 +2,11 @@
 credentials.py
 config.json
 
+patch/*
+!patch/.gitkeep
+
+tool/*
+!tool/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

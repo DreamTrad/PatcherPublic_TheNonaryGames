@@ -2,11 +2,8 @@
 
 import pathlib
 
-
 # == INFORMATIONS GÉNÉRALES ===================================================
 
-# Nom de l’exe généré
-EXE_BASENAME: str = "DreamTrad_patcheur_fr_ZeroEscape_NonaryGames"
 # Nom de la fenêtre du logiciel
 NAME_WINDOW: str = "DreamTrad : Patcheur de Zero Escape - The Nonary Games"
 
@@ -15,6 +12,14 @@ IS_STEAM_GAME: bool = True
 # Nom du dossier du jeu dans Steam (utilisé uniquement si IS_STEAM_GAME = True)
 STEAM_FOLDER: str = "Zero Escape The Nonary Games"
 
+# == INTERFACE UTILISATEUR ====================================================
+
+OTHERS_CHECKBOXES: dict[str, tuple[str, bool]] = {
+    "launcher": ("Patcher launcher", True),
+    "999": ("Patcher 9 Hours, 9 Persons, 9 Doors", True),
+    "vlr": ("Patcher Virtue's Last Reward", True)
+}
+"""Liste des cases à cocher supplémentaires, clé: (texte, valeur par défaut)"""
 
 # == OUTILS / ENVIRONNEMENT ===================================================
 
@@ -27,3 +32,6 @@ PATCH_FOLDER = pathlib.Path("patch")
 
 # Dossier du jeu, défini dynamiquement à l’exécution
 GAME_FOLDER: pathlib.Path = pathlib.Path("")
+
+CHECKBOX_VALUES: dict[str, bool] = {}
+"""Valeurs cochées des options (remplies par l’application)"""
